@@ -1,0 +1,40 @@
+Public Class ArranqueServidorClass
+    Dim aClients As New ArrayList
+    Dim Server As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+
+    Public Sub New()
+        GetSeparador()
+        Dim aryLocalAddr() As IPAddress = Nothing
+        Dim strHostName As String = ""
+        Try
+            strHostName = Dns.GetHostName
+            Dim ipEntry As IPHostEntry = Dns.GetHostEntry(strHostName)
+            aryLocalAddr = ipEntry.AddressList
+            For Each item In aryLocalAddr
+                'Searches for the IP address configured in the app settings
+                'If it finds it in the addresslist it will start Listening for messages
+                If item.ToString.Equals(My.Settings.MyIP) Then
+                    Server.Bind(New IPEndPoint(item, 13000))
+                    Server.Listen(50)
+                    Exit For
+                End If
+            Next
+        Catch ex As Exception
+        End Try
+        '
+        Server.BeginAccept(New AsyncCallback(AddressOf onConnectRequest), Server)
+    End Sub
+
+    Private Sub onConnectRequest(ByVal AsyncR As IAsyncResult)
+        Dim Listener As Socket = AsyncR.AsyncState
+        Try
+            Dim clientSock As Socket = Listener.EndAccept(AsyncR)
+            'If Not aClients.Contains(clientSock) Then
+            Dim oClient As New RelojVitalCareClass(clientSock)
+        Catch
+        End Try
+        'aClients.Add(oClient)
+        'End If
+        Listener.BeginAccept(New AsyncCallback(AddressOf onConnectRequest), Listener)
+    End Sub
+End Class
