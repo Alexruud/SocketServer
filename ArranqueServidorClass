@@ -3,7 +3,7 @@ Public Class ArranqueServidorClass
     Dim Server As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 
     Public Sub New()
-        GetSeparador()
+        
         Dim aryLocalAddr() As IPAddress = Nothing
         Dim strHostName As String = ""
         Try
